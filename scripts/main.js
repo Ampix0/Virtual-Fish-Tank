@@ -11,6 +11,14 @@ var gameBox = document.getElementById('canvasContainer');
 gameBox.appendChild(canvas);
 
 //=======================
+//======    Menu   ======
+//=======================
+var goldLable = document.getElementById('gold');
+function updateGold() {
+    goldLable.innerHTML = tank.money;
+}
+
+//=======================
 //======  ASSETS   ======
 //=======================
 var fishImageReady = false;
@@ -51,6 +59,7 @@ function fish(x, y, vx, vy, speed) {
     //Physics
     this.x = x;
     this.y = y;
+    this.originY = y;
     this.vx = vx;
     this.vy = vy;
     this.speed = speed;
@@ -78,7 +87,8 @@ function fish(x, y, vx, vy, speed) {
             this.vx = this.vx * -1;
         }
         
-        this.y = (Math.sin(this.age * 0.005) * 20) + 50;
+        this.vy = (Math.sin(this.age * 0.005) * 20);
+        this.y = this.vy + this.originY;
 
 
         this.x += this.vx * mod;
@@ -190,7 +200,22 @@ function main() {
 }
 
 function addFish() {
-    tank.fish.push(spawnFish);
+    
+    if(tank.money >= 20){
+         var x = Math.random() * (1, 799);
+    var y = Math.random() * (20, 200) + 9;
+    var yv = Math.random() * (1, 10) + 10;
+    var xv = Math.random() * (1, 10) + 10;
+    var speed = Math.random() * (25, 500) + 25;
+    
+tank.fish.push(new fish(x,y,xv,yv,speed));
+    
+    tank.money -= 20;
+    updateGold();
+    }
+    
+   
+    
 }
 
 //=======================
@@ -199,7 +224,6 @@ function addFish() {
 var then = Date.now();
 
 var spawnFish = new fish(400, 50, 3, 9, 100);
-var spawnFish2 = new fish(450, 90, 8, 2, 200);
 tank.fish.push(spawnFish);
-tank.fish.push(spawnFish2);
+updateGold();
 main();
