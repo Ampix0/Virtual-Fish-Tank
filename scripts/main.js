@@ -14,6 +14,7 @@ gameBox.appendChild(canvas);
 //======    Menu   ======
 //=======================
 var goldLable = document.getElementById('gold');
+
 function updateGold() {
     goldLable.innerHTML = tank.money;
 }
@@ -21,21 +22,14 @@ function updateGold() {
 //=======================
 //======  ASSETS   ======
 //=======================
-var fishImageReady = false;
-var fishImage = new Image();
-fishImage.onload = function () {
-    fishImageReady = true;
-}
-fishImage.src = 'assets/fish.png';
+var spriteFish = new Image();
+var spriteFishReady = false;
+spriteFish.src = 'assets/sprites.png';
+spriteFish.iconSize = 32;
+spriteFish.onload = function() {
+    spriteFishReady = true;
+};
 
-//
-
-var fishReverseImageReady = false;
-var fishReverseImage = new Image();
-fishReverseImage.onload = function () {
-    fishReverseImageReady = true;
-}
-fishReverseImage.src = 'assets/fishReverse.png';
 
 
 
@@ -55,28 +49,32 @@ var tank = {
     level: 0,
 }
 
-function fish(x, y, vx, vy, speed) {
+function fish(x, y, vx, vy, speed, type) {
     //Physics
     this.x = x;
     this.y = y;
+    this.type = type;
     this.originY = y;
     this.vx = vx;
     this.vy = vy;
     this.speed = speed;
+    this.spriteYPos = this.type * spriteFish.iconSize;
+    this.spriteXPos = 0;
 
     //Properties
     this.age = 0;
     this.hunger = 0;
-    this.draw = function () { 
-        var direction;
-        if (this.vx > 0){
-            direction = fishImage;
-        }
-        else{
-            direction = fishReverseImage;
-        }
-        ctx.drawImage(direction, this.x, this.y);
+    this.draw = function (xpos = this.spriteXPos, ypos = this.spriteYPos, direction = this.vx) {
         
+        if(direction < 0) {
+            xpos = spriteFish.iconSize;
+        }else {
+            xpos = 0;
+        }
+
+
+        ctx.drawImage(spriteFish, xpos, ypos, spriteFish.iconSize, spriteFish.iconSize, this.x, this.y, spriteFish.iconSize, spriteFish.iconSize);
+
     };
 
 
@@ -86,7 +84,7 @@ function fish(x, y, vx, vy, speed) {
         if (this.x > (canvas.width - 32) || this.x < 0) {
             this.vx = this.vx * -1;
         }
-        
+
         this.vy = (Math.sin(this.age * 0.005) * 20);
         this.y = this.vy + this.originY;
 
@@ -154,7 +152,7 @@ function render() {
 
     renderBackground(1); //Draw Background
 
-    if (fishImageReady) {
+    if (spriteFishReady) {
 
         for (i = 0; i < tank.fish.length; i++) { //for each fish in the tank
             tank.fish[i].draw();
@@ -194,28 +192,28 @@ function main() {
     render();
 
     then = now;
-    console.log('new frame');
+   // console.log('new frame');
     requestAnimationFrame(main);
 
 }
 
 function addFish() {
-    
-    if(tank.money >= 20){
-         var x = Math.random() * (1, 799);
-    var y = Math.random() * (20, 200) + 9;
-    var yv = Math.random() * (1, 10) + 10;
-    var xv = Math.random() * (1, 10) + 10;
-    var speed = Math.random() * (25, 500) + 25;
-    
-tank.fish.push(new fish(x,y,xv,yv,speed));
-    
-    tank.money -= 20;
-    updateGold();
+
+    if (tank.money >= 20) {
+        var x = Math.random() * (1, 799);
+        var y = Math.random() * (20, 200) + 9;
+        var yv = Math.random() * (1, 10) + 10;
+        var xv = Math.random() * (1, 10) + 10;
+        var speed = Math.random() * (25, 500) + 25;
+
+        tank.fish.push(new fish(x, y, xv, yv, speed, 1));
+
+        tank.money -= 20;
+        updateGold();
     }
-    
-   
-    
+
+
+
 }
 
 //=======================
@@ -223,7 +221,7 @@ tank.fish.push(new fish(x,y,xv,yv,speed));
 //=======================
 var then = Date.now();
 
-var spawnFish = new fish(400, 50, 3, 9, 100);
+var spawnFish = new fish(400,50,3,9,100,0);
 tank.fish.push(spawnFish);
 updateGold();
 main();
